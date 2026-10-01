@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/motion.dart';
 import '../models/task.dart';
 import '../view_models/task_view_model.dart';
 import 'tasks_page.dart';
@@ -190,7 +191,9 @@ class _CalendarPageState extends State<CalendarPage> {
       },
       child: Padding(
         padding: const EdgeInsets.all(2),
-        child: DecoratedBox(
+        child: AnimatedContainer(
+          duration: accessibleMotionDuration(context),
+          curve: Curves.easeOutCubic,
           decoration: BoxDecoration(
             color: isSelected ? colorScheme.primaryContainer : null,
             border: isToday
@@ -201,8 +204,9 @@ class _CalendarPageState extends State<CalendarPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                '${date.day}',
+              AnimatedDefaultTextStyle(
+                duration: accessibleMotionDuration(context),
+                curve: Curves.easeOutCubic,
                 style: TextStyle(
                   color: isCurrentMonth
                       ? colorScheme.onSurface
@@ -211,15 +215,16 @@ class _CalendarPageState extends State<CalendarPage> {
                       ? FontWeight.bold
                       : FontWeight.normal,
                 ),
+                child: Text('${date.day}'),
               ),
               const SizedBox(height: 4),
               SizedBox(
                 height: 18,
                 child: taskCount == 0
                     ? null
-                    : Text(
+                    : AnimatedValueText(
                         '$taskCount',
-                        key: ValueKey('calendar-task-count-$taskCount'),
+                        valueKey: ValueKey('calendar-task-count-$taskCount'),
                         style: TextStyle(
                           color: calendarTaskCountColor(context, taskCount),
                           fontWeight: FontWeight.bold,

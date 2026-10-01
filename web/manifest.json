@@ -1,11 +1,11 @@
 {
-    "name": "academic_planner",
-    "short_name": "academic_planner",
+    "name": "Project Tala",
+    "short_name": "Project Tala",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Project Tala is a personal academic planner for tasks, schedules, subjects, and academic plans.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

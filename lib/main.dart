@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'dart:async';
 
+import 'app/branding.dart';
+import 'app/motion.dart';
+import 'app/project_tala_mark.dart';
 import 'pages/calendar_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/subjects_page.dart';
@@ -67,9 +70,24 @@ class AcademicPlannerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tala',
+      title: projectTalaAppName,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: const Color(0xFF274C77),
+        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
+        cardTheme: CardThemeData(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF5F7FB),
+          surfaceTintColor: Colors.transparent,
+        ),
+      ),
       home: const AppShell(),
     );
   }
@@ -193,7 +211,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
 
   Widget _buildMobileLayout() {
     return Scaffold(
-      body: _buildPage(),
+      body: _buildAnimatedPage(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onDestinationSelected,
@@ -239,7 +257,7 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
           const VerticalDivider(width: 1),
           Expanded(
             child: Scaffold(
-              body: _buildPage(),
+              body: _buildAnimatedPage(),
               floatingActionButton: _selectedIndex <= 1
                   ? FloatingActionButton.extended(
                       onPressed: _addTask,
@@ -251,6 +269,25 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAnimatedPage() {
+    return AnimatedSwitcher(
+      duration: accessibleMotionDuration(context),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        final position = Tween<Offset>(
+          begin: const Offset(0.015, 0),
+          end: Offset.zero,
+        ).animate(animation);
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(position: position, child: child),
+        );
+      },
+      child: KeyedSubtree(key: ValueKey(_selectedIndex), child: _buildPage()),
     );
   }
 
@@ -415,23 +452,28 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
+                        const ProjectTalaMark(size: 36),
                         Text(
-                          'Tala',
+                          projectTalaAppName,
                           style: Theme.of(context).textTheme.titleLarge
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(width: 8),
                         Text(
-                          'Academic Planner',
+                          projectTalaTagline,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
-                        const SizedBox(width: 8),
-                        const Chip(
-                          label: Text('BETA'),
+                        Chip(
+                          label: Text(projectTalaVersionLabel),
                           visualDensity: VisualDensity.compact,
-                          padding: EdgeInsets.zero,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .primaryContainer,
                         ),
                       ],
                     ),
@@ -849,10 +891,10 @@ class _Metric extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        AnimatedValueText(
           '$value',
-          style: Theme.of(context).textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.headlineSmall!
+              .copyWith(fontWeight: FontWeight.bold),
         ),
         Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
@@ -898,10 +940,10 @@ class _SummaryCard extends StatelessWidget {
                 children: [
                   Text(title),
                   const SizedBox(height: 4),
-                  Text(
+                  AnimatedValueText(
                     value,
-                    style: Theme.of(context).textTheme.headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.headlineSmall!
+                        .copyWith(fontWeight: FontWeight.bold),
                   ),
                   Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
                 ],
@@ -946,25 +988,15 @@ class _AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!extended) {
-      return Icon(
-        Icons.school,
-        color: Theme.of(context).colorScheme.primary,
-        size: 28,
-      );
-    }
+    if (!extended) return const ProjectTalaMark(size: 36);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.school,
-          color: Theme.of(context).colorScheme.primary,
-          size: 28,
-        ),
+        const ProjectTalaMark(size: 36),
         const SizedBox(width: 12),
         Text(
-          'Tala',
+          projectTalaAppName,
           style: Theme.of(context).textTheme.titleMedium
               ?.copyWith(fontWeight: FontWeight.bold),
         ),

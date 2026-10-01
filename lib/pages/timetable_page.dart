@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/motion.dart';
 import '../models/timetable_entry.dart';
 import '../pages/timetable_entry_editor_dialog.dart';
 import '../pages/timetable_event_details_dialog.dart';
@@ -90,9 +91,15 @@ class TimetablePage extends StatelessWidget {
                   .where((entry) => entry.dayOfWeek <= 5)
                   .toList();
               final bounds = timetableTimelineBounds(entries);
+              final horizontalPadding = constraints.maxWidth >= 1000
+                  ? 48.0
+                  : 24.0;
 
               return SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 24,
+                ),
                 child: Center(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 1500),
@@ -261,18 +268,26 @@ class _DayColumn extends StatelessWidget {
         SizedBox(
           height: timetableDayHeaderHeight,
           child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(timetableWeekdayHeaderRadius),
-            ),
-            color: isCurrent
-                ? Theme.of(context).colorScheme.primaryContainer
-                : null,
+            clipBehavior: Clip.antiAlias,
             child: Center(
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+              child: AnimatedContainer(
+                duration: accessibleMotionDuration(context),
+                curve: Curves.easeOutCubic,
+                decoration: BoxDecoration(
+                  color: isCurrent
+                      ? Theme.of(context).colorScheme.primaryContainer
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(
+                    timetableWeekdayHeaderRadius,
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),

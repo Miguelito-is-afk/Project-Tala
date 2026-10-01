@@ -9,16 +9,16 @@ import 'package:academic_planner/services/completed_task_cleanup.dart';
 import 'package:academic_planner/view_models/task_view_model.dart';
 
 void main() {
-  testWidgets('Tala loads successfully with the beta indicator', (
+  testWidgets('Project Tala loads successfully with the version label', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const AcademicPlannerApp());
     await tester.pumpAndSettle();
 
     expect(find.text('Good day 👋'), findsOneWidget);
-    expect(find.text('Tala'), findsOneWidget);
+    expect(find.text('Project Tala'), findsWidgets);
     expect(find.text('Academic Planner'), findsOneWidget);
-    expect(find.text('BETA'), findsOneWidget);
+    expect(find.text('v0.6.1'), findsOneWidget);
     expect(find.text("Today's tasks"), findsOneWidget);
   });
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/branding.dart';
 import '../services/completed_task_cleanup.dart';
 import '../services/timetable_reminder_settings.dart';
 import '../view_models/task_view_model.dart';
@@ -64,7 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(24),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
+            constraints: const BoxConstraints(maxWidth: 760),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -74,116 +75,148 @@ class _SettingsPageState extends State<SettingsPage> {
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Notifications',
-                          style: Theme.of(context).textTheme.titleLarge,
+                _SettingsSection(
+                  title: 'General',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Notifications',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Class reminders'),
+                        subtitle: const Text(
+                          'Receive reminders for class sessions only.',
                         ),
-                        const SizedBox(height: 8),
-                        SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text('Class reminders'),
-                          subtitle: const Text(
-                            'Receive reminders for class sessions only.',
-                          ),
-                          value: _enabled,
-                          onChanged: _setEnabled,
+                        value: _enabled,
+                        onChanged: _setEnabled,
+                      ),
+                      DropdownButtonFormField<int>(
+                        initialValue: _offsetMinutes,
+                        decoration: const InputDecoration(
+                          labelText: 'Remind me before class',
+                          border: OutlineInputBorder(),
                         ),
-                        DropdownButtonFormField<int>(
-                          initialValue: _offsetMinutes,
-                          decoration: const InputDecoration(
-                            labelText: 'Remind me before class',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: const [5, 10, 15, 30]
-                              .map(
-                                (minutes) => DropdownMenuItem(
-                                  value: minutes,
-                                  child: Text('$minutes minutes'),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: _enabled
-                              ? (value) {
-                                  if (value != null) _setOffset(value);
-                                }
-                              : null,
-                        ),
+                        items: const [5, 10, 15, 30]
+                            .map(
+                              (minutes) => DropdownMenuItem(
+                                value: minutes,
+                                child: Text('$minutes minutes'),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: _enabled
+                            ? (value) {
+                                if (value != null) _setOffset(value);
+                              }
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: widget.viewModel.scheduleTestNotification,
+                        icon: const Icon(Icons.notifications_outlined),
+                        label: const Text('Test notification'),
+                      ),
+                      if (_statusMessage != null) ...[
                         const SizedBox(height: 12),
-                        OutlinedButton.icon(
-                          onPressed: widget.viewModel.scheduleTestNotification,
-                          icon: const Icon(Icons.notifications_outlined),
-                          label: const Text('Test notification'),
-                        ),
-                        if (_statusMessage != null) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            _statusMessage!,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                        Text(
+                          _statusMessage!,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
                           ),
-                        ],
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Completed task cleanup',
-                          style: Theme.of(context).textTheme.titleLarge,
+                _SettingsSection(
+                  title: 'Academic',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Completed task cleanup',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<CompletedTaskCleanupPolicy>(
+                        initialValue: _completedTaskCleanupPolicy,
+                        decoration: const InputDecoration(
+                          labelText: 'Completed task cleanup',
+                          border: OutlineInputBorder(),
                         ),
-                        const SizedBox(height: 12),
-                        DropdownButtonFormField<CompletedTaskCleanupPolicy>(
-                          initialValue: _completedTaskCleanupPolicy,
-                          decoration: const InputDecoration(
-                            labelText: 'Completed task cleanup',
-                            border: OutlineInputBorder(),
+                        items: const [
+                          DropdownMenuItem(
+                            value: CompletedTaskCleanupPolicy.never,
+                            child: Text('Never'),
                           ),
-                          items: const [
-                            DropdownMenuItem(
-                              value: CompletedTaskCleanupPolicy.never,
-                              child: Text('Never'),
-                            ),
-                            DropdownMenuItem(
-                              value: CompletedTaskCleanupPolicy.endOfDay,
-                              child: Text('At the end of the day'),
-                            ),
-                            DropdownMenuItem(
-                              value: CompletedTaskCleanupPolicy.endOfWeek,
-                              child: Text('At the end of the week'),
-                            ),
-                            DropdownMenuItem(
-                              value: CompletedTaskCleanupPolicy.immediate,
-                              child: Text('Immediately'),
-                            ),
-                          ],
-                          onChanged: _setCompletedTaskCleanupPolicy,
-                        ),
-                        if (_completedTaskCleanupPolicy ==
-                            CompletedTaskCleanupPolicy.immediate) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            'Completed tasks are permanently removed '
-                            'immediately.',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                          DropdownMenuItem(
+                            value: CompletedTaskCleanupPolicy.endOfDay,
+                            child: Text('At the end of the day'),
+                          ),
+                          DropdownMenuItem(
+                            value: CompletedTaskCleanupPolicy.endOfWeek,
+                            child: Text('At the end of the week'),
+                          ),
+                          DropdownMenuItem(
+                            value: CompletedTaskCleanupPolicy.immediate,
+                            child: Text('Immediately'),
                           ),
                         ],
+                        onChanged: _setCompletedTaskCleanupPolicy,
+                      ),
+                      if (_completedTaskCleanupPolicy ==
+                          CompletedTaskCleanupPolicy.immediate) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          'Completed tasks are permanently removed immediately.',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
                       ],
-                    ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _SettingsSection(
+                  title: 'About',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        projectTalaAppName,
+                        style: Theme.of(context).textTheme.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        projectTalaTagline,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Version $projectTalaVersion',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(projectTalaDescription),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Why "Tala"?',
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(projectTalaWhyTala),
+                    ],
                   ),
                 ),
               ],
@@ -255,6 +288,37 @@ class _SettingsPageState extends State<SettingsPage> {
         enabled: _enabled,
         offsetMinutes: _offsetMinutes,
         completedTaskCleanupPolicy: _completedTaskCleanupPolicy,
+      ),
+    );
+  }
+}
+
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 16),
+            child,
+          ],
+        ),
       ),
     );
   }

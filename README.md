@@ -1,17 +1,25 @@
-# academic_planner
+# Project Tala
 
-A new Flutter project.
+Project Tala is a modern academic planner for keeping tasks, subjects, class schedules, and academic plans organized in one place.
 
-## Getting Started
+## Overview
 
-This project is a starting point for a Flutter application.
+Project Tala is designed for students and learners who want a calm, organized way to track assignments, deadlines, subject workload, and timetable commitments.
 
-A few resources to get you started if this is your first Flutter project:
+## Getting started
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Install Flutter and open the project in your preferred editor.
+- Run `flutter pub get` to install dependencies.
+- Use `flutter run` to launch the app on an available device or simulator.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Useful commands
+
+- `flutter analyze`
+- `flutter test`
+- `dart format lib test`
+
+## App identity
+
+- App name: Project Tala
+- Version: 0.6.1
+- Android application ID remains `com.example.academic_planner`

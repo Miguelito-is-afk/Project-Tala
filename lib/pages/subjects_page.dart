@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/motion.dart';
 import '../app/subjects.dart';
 import '../models/task.dart';
 import '../view_models/task_view_model.dart';
@@ -30,72 +31,91 @@ class _SubjectsPageState extends State<SubjectsPage> {
           return Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Subjects',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'See how your tasks are distributed across subjects.',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: _addSubject,
-                      icon: const Icon(Icons.add),
-                      label: const Text('Add subject'),
-                    ),
-                    if (viewModel.archivedSubjects.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: _showArchivedSubjects,
-                        icon: const Icon(Icons.archive_outlined),
-                        label: Text(
-                          'Archived subjects '
-                          '(${viewModel.archivedSubjects.length})',
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final cardWidth = constraints.maxWidth >= 800
-                            ? (constraints.maxWidth - 16) / 2
-                            : constraints.maxWidth;
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final horizontalPadding = constraints.maxWidth >= 1000
+                      ? 48.0
+                      : 24.0;
 
-                        return Wrap(
-                          spacing: 16,
-                          runSpacing: 16,
-                          children: viewModel.availableSubjects.map((subject) {
-                            return SizedBox(
-                              width: cardWidth,
-                              child: _SubjectCard(
-                                subject: subject,
-                                tasks: viewModel.tasksForSubject(subject),
-                                nextDueTask: viewModel.nextDueTaskForSubject(
-                                  subject,
-                                ),
-                                onTap: () => widget.onSubjectSelected(subject),
-                                onArchive: subject == reminderSubject
-                                    ? null
-                                    : () => _archiveSubject(subject),
-                                onEdit: subject == reminderSubject
-                                    ? null
-                                    : () => _editSubject(subject),
-                              ),
-                            );
-                          }).toList(),
-                        );
-                      },
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                      vertical: 24,
                     ),
-                  ],
-                ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Subjects',
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'See how your tasks are distributed across subjects.',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton.icon(
+                          onPressed: _addSubject,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add subject'),
+                        ),
+                        if (viewModel.archivedSubjects.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          TextButton.icon(
+                            onPressed: _showArchivedSubjects,
+                            icon: const Icon(Icons.archive_outlined),
+                            label: Text(
+                              'Archived subjects '
+                              '(${viewModel.archivedSubjects.length})',
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                        Text(
+                          'Active subjects',
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final cardWidth = constraints.maxWidth >= 800
+                                ? (constraints.maxWidth - 16) / 2
+                                : constraints.maxWidth;
+
+                            return Wrap(
+                              spacing: 16,
+                              runSpacing: 16,
+                              children: viewModel.availableSubjects.map((
+                                subject,
+                              ) {
+                                return SizedBox(
+                                  width: cardWidth,
+                                  child: _SubjectCard(
+                                    subject: subject,
+                                    tasks: viewModel.tasksForSubject(subject),
+                                    nextDueTask: viewModel
+                                        .nextDueTaskForSubject(subject),
+                                    onTap: () =>
+                                        widget.onSubjectSelected(subject),
+                                    onArchive: subject == reminderSubject
+                                        ? null
+                                        : () => _archiveSubject(subject),
+                                    onEdit: subject == reminderSubject
+                                        ? null
+                                        : () => _editSubject(subject),
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           );
@@ -229,7 +249,7 @@ class _SubjectsPageState extends State<SubjectsPage> {
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete archived subject permanently?'),
         content: Text(
-          '$subject will be permanently removed from Tala. '
+          '$subject will be permanently removed from Project Tala. '
           'This action cannot be undone.',
         ),
         actions: [
@@ -527,10 +547,10 @@ class _Stat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          AnimatedValueText(
             value,
-            style: Theme.of(context).textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge!
+                .copyWith(fontWeight: FontWeight.bold),
           ),
           Text(label, style: Theme.of(context).textTheme.bodySmall),
         ],

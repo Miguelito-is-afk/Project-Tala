@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'task_editor_dialog.dart';
+import '../app/motion.dart';
 import '../app/subjects.dart';
 import '../models/task.dart';
 import '../view_models/task_view_model.dart';
@@ -486,10 +487,22 @@ class TaskCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final priorityColor = _priorityColor(context);
 
+    final colors = Theme.of(context).colorScheme;
+    final completedDecoration = task.isCompleted
+        ? colors.primaryContainer.withValues(alpha: 0.28)
+        : Colors.transparent;
+
     return Card(
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
+        child: AnimatedContainer(
+          duration: accessibleMotionDuration(context),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: completedDecoration,
+            borderRadius: BorderRadius.circular(18),
+          ),
           padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -500,14 +513,16 @@ class TaskCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      task.title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    AnimatedDefaultTextStyle(
+                      duration: accessibleMotionDuration(context),
+                      curve: Curves.easeOutCubic,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.w600,
                         decoration: task.isCompleted
                             ? TextDecoration.lineThrough
                             : null,
                       ),
+                      child: Text(task.title),
                     ),
                     if (task.description.isNotEmpty) ...[
                       const SizedBox(height: 6),

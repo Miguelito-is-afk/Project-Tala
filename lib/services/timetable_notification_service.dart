@@ -3,6 +3,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../app/branding.dart';
 import '../models/timetable_entry.dart';
 
 enum NotificationPermissionStatus { granted, denied, unavailable }
@@ -46,7 +47,7 @@ class LocalTimetableNotificationService
           defaultActionName: 'Open notification',
         ),
         windows: WindowsInitializationSettings(
-          appName: 'Academic Planner',
+          appName: 'Project Tala',
           appUserModelId: 'com.example.academic_planner',
           guid: 'c1f03c60-7d4b-4a72-9ed4-85a7560a4a90',
         ),
@@ -115,7 +116,7 @@ class LocalTimetableNotificationService
     await initialize();
     await _plugin.show(
       id: 0x7ffffffe,
-      title: 'Academic Planner',
+      title: projectTalaAppName,
       body: 'Test notification received.',
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
