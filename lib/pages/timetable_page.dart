@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/branding.dart';
 import '../app/motion.dart';
 import '../models/timetable_entry.dart';
 import '../pages/timetable_entry_editor_dialog.dart';
@@ -109,12 +110,18 @@ class TimetablePage extends StatelessWidget {
                         Text(
                           'Timetable',
                           style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: talaInk,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Your weekly schedule at a glance.',
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: talaInk.withValues(alpha: 0.72),
+                              ),
                         ),
                         const SizedBox(height: 20),
                         Align(
@@ -152,6 +159,7 @@ class TimetablePage extends StatelessWidget {
           children: [
             Expanded(
               child: DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: weekday,
                 decoration: const InputDecoration(
                   labelText: 'Day',
@@ -161,7 +169,11 @@ class TimetablePage extends StatelessWidget {
                   for (var index = 1; index <= 5; index++)
                     DropdownMenuItem(
                       value: index,
-                      child: Text(_weekdayNames[index - 1]),
+                      child: Text(
+                        _weekdayNames[index - 1],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
                 onChanged: (value) {
@@ -267,27 +279,24 @@ class _DayColumn extends StatelessWidget {
       children: [
         SizedBox(
           height: timetableDayHeaderHeight,
-          child: Card(
-            clipBehavior: Clip.antiAlias,
-            child: Center(
-              child: AnimatedContainer(
-                duration: accessibleMotionDuration(context),
-                curve: Curves.easeOutCubic,
-                decoration: BoxDecoration(
-                  color: isCurrent
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(
-                    timetableWeekdayHeaderRadius,
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
+          child: AnimatedContainer(
+            duration: accessibleMotionDuration(context),
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              color: isCurrent ? talaSky : talaSurface,
+              borderRadius: BorderRadius.circular(timetableWeekdayHeaderRadius),
+              border: Border.all(
+                color: isCurrent ? talaBlue : talaBorder,
+                width: isCurrent ? 1.4 : 1,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isCurrent ? talaBlue : talaInk,
               ),
             ),
           ),
@@ -297,7 +306,8 @@ class _DayColumn extends StatelessWidget {
           height: timelineHeight,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).dividerColor),
+              color: talaPaper,
+              border: Border.all(color: talaBorder),
               borderRadius: BorderRadius.circular(timetableWeekdayHeaderRadius),
             ),
             child: Stack(
@@ -517,24 +527,30 @@ class _EntryBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final color = switch (entry.entryType) {
-      TimetableEntryType.breakTime => colors.surfaceContainerHighest,
-      TimetableEntryType.consultation => colors.secondaryContainer,
-      TimetableEntryType.activity => colors.tertiaryContainer,
-      _ => colors.primaryContainer,
+      TimetableEntryType.breakTime => talaPaper,
+      TimetableEntryType.consultation => talaSky,
+      TimetableEntryType.activity => const Color(0xFFE8F3FF),
+      _ => talaBlue.withValues(alpha: 0.12),
+    };
+
+    final borderColor = switch (entry.entryType) {
+      TimetableEntryType.breakTime => talaBorder,
+      TimetableEntryType.consultation => talaBlue.withValues(alpha: 0.35),
+      TimetableEntryType.activity => const Color(0xFFB9D5FF),
+      _ => talaBlue.withValues(alpha: 0.45),
     };
 
     return GestureDetector(
       onTap: () => onTap(entry),
-      child: Card(
+      child: Container(
         margin: EdgeInsets.zero,
-        clipBehavior: Clip.hardEdge,
-        shape: RoundedRectangleBorder(
+        decoration: BoxDecoration(
+          color: color,
           borderRadius: BorderRadius.circular(timetableEntryCardRadius),
+          border: Border.all(color: borderColor, width: 1.2),
         ),
-        color: color,
-        child: ClipRect(
+        child: ClipRRect(
           child: Stack(
             children: [
               Positioned(

@@ -72,7 +72,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Text(
                   'Settings',
                   style: Theme.of(context).textTheme.headlineMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
+                      ?.copyWith(fontWeight: FontWeight.bold, color: talaInk),
                 ),
                 const SizedBox(height: 20),
                 _SettingsSection(
@@ -95,6 +95,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onChanged: _setEnabled,
                       ),
                       DropdownButtonFormField<int>(
+                        isExpanded: true,
                         initialValue: _offsetMinutes,
                         decoration: const InputDecoration(
                           labelText: 'Remind me before class',
@@ -144,6 +145,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<CompletedTaskCleanupPolicy>(
+                        isExpanded: true,
                         initialValue: _completedTaskCleanupPolicy,
                         decoration: const InputDecoration(
                           labelText: 'Completed task cleanup',
@@ -302,6 +304,12 @@ class _SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: talaSurface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+        side: const BorderSide(color: talaBorder),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -310,7 +318,7 @@ class _SettingsSection extends StatelessWidget {
             Text(
               title,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
+                color: talaBlue,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
               ),

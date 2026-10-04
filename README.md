@@ -21,5 +21,5 @@ Project Tala is designed for students and learners who want a calm, organized wa
 ## App identity
 
 - App name: Project Tala
-- Version: 0.6.1
+- Version: 0.7.0
 - Android application ID remains `com.example.academic_planner`

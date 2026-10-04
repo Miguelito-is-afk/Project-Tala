@@ -18,7 +18,7 @@ void main() {
     expect(find.text('Good day 👋'), findsOneWidget);
     expect(find.text('Project Tala'), findsWidgets);
     expect(find.text('Academic Planner'), findsOneWidget);
-    expect(find.text('v0.6.1'), findsOneWidget);
+    expect(find.text('v0.7.0'), findsOneWidget);
     expect(find.text("Today's tasks"), findsOneWidget);
   });
 

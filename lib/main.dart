@@ -74,18 +74,67 @@ class AcademicPlannerApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF274C77),
-        scaffoldBackgroundColor: const Color(0xFFF5F7FB),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: talaBlue,
+          primary: talaBlue,
+          secondary: talaBlue,
+          surface: talaSurface,
+          surfaceTint: Colors.transparent,
+          error: talaDanger,
+          tertiary: talaGold,
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: talaPaper,
         cardTheme: CardThemeData(
+          color: talaSurface,
           elevation: 0,
           margin: EdgeInsets.zero,
+          surfaceTintColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            side: const BorderSide(color: talaBorder),
+            borderRadius: BorderRadius.circular(22),
+          ),
+        ),
+        dialogTheme: DialogThemeData(
+          backgroundColor: talaSurface,
+          surfaceTintColor: Colors.transparent,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: talaBorder),
+            borderRadius: BorderRadius.circular(28),
           ),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFFF5F7FB),
+          backgroundColor: talaPaper,
           surfaceTintColor: Colors.transparent,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: talaSurface,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 14,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: talaBorder),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: talaBorder),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: talaBlue, width: 1.5),
+          ),
+        ),
+        navigationBarTheme: NavigationBarThemeData(
+          backgroundColor: talaSurface,
+          surfaceTintColor: Colors.transparent,
+          indicatorColor: talaSky,
+          labelTextStyle: WidgetStatePropertyAll(
+            TextStyle(color: talaInk, fontWeight: FontWeight.w600),
+          ),
         ),
       ),
       home: const AppShell(),
@@ -215,10 +264,16 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onDestinationSelected,
+        backgroundColor: talaSurface,
+        indicatorColor: talaSky,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         destinations: destinations.map((destination) {
           return NavigationDestination(
-            icon: Icon(destination.icon),
-            selectedIcon: Icon(destination.selectedIcon),
+            icon: Icon(
+              destination.icon,
+              color: talaInk.withValues(alpha: 0.72),
+            ),
+            selectedIcon: Icon(destination.selectedIcon, color: talaBlue),
             label: destination.label,
           );
         }).toList(),
@@ -237,24 +292,43 @@ class _AppShellState extends State<AppShell> with WidgetsBindingObserver {
       body: Row(
         children: [
           SafeArea(
-            child: NavigationRail(
-              extended: extended,
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: _onDestinationSelected,
-              leading: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: _AppLogo(extended: extended),
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                navigationRailTheme: NavigationRailThemeData(
+                  backgroundColor: talaSurface,
+                  indicatorColor: talaSky,
+                  selectedIconTheme: const IconThemeData(color: talaBlue),
+                  unselectedIconTheme: IconThemeData(
+                    color: talaInk.withValues(alpha: 0.7),
+                  ),
+                  selectedLabelTextStyle: const TextStyle(
+                    color: talaBlue,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelTextStyle: TextStyle(
+                    color: talaInk.withValues(alpha: 0.8),
+                  ),
+                ),
               ),
-              destinations: destinations.map((destination) {
-                return NavigationRailDestination(
-                  icon: Icon(destination.icon),
-                  selectedIcon: Icon(destination.selectedIcon),
-                  label: Text(destination.label),
-                );
-              }).toList(),
+              child: NavigationRail(
+                extended: extended,
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: _onDestinationSelected,
+                leading: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: _AppLogo(extended: extended),
+                ),
+                destinations: destinations.map((destination) {
+                  return NavigationRailDestination(
+                    icon: Icon(destination.icon),
+                    selectedIcon: Icon(destination.selectedIcon),
+                    label: Text(destination.label),
+                  );
+                }).toList(),
+              ),
             ),
           ),
-          const VerticalDivider(width: 1),
+          const VerticalDivider(width: 1, color: talaBorder),
           Expanded(
             child: Scaffold(
               body: _buildAnimatedPage(),
@@ -452,41 +526,100 @@ class _HomePageState extends State<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        const ProjectTalaMark(size: 36),
-                        Text(
-                          projectTalaAppName,
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          projectTalaTagline,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        Chip(
-                          label: Text(projectTalaVersionLabel),
-                          visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          backgroundColor: Theme.of(context)
-                              .colorScheme
-                              .primaryContainer,
-                        ),
-                      ],
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: talaSurface,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: talaBorder),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const ProjectTalaMark(size: 42),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children: [
+                                    Text(
+                                      projectTalaAppName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: talaInk,
+                                          ),
+                                    ),
+                                    Text(
+                                      projectTalaTagline,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            color: talaInk.withValues(
+                                              alpha: 0.72,
+                                            ),
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Good day 👋',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        color: talaInk,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 7,
+                            ),
+                            decoration: BoxDecoration(
+                              color: talaSky,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              projectTalaVersionLabel,
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(
+                                    color: talaBlue,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      'Good day 👋',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                      'Academic command center',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: talaInk,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'Here is what is happening with your academics.',
-                      style: Theme.of(context).textTheme.bodyLarge,
+                      style: Theme.of(context).textTheme.bodyLarge
+                          ?.copyWith(color: talaInk.withValues(alpha: 0.72)),
                     ),
                     const SizedBox(height: 32),
 
@@ -702,7 +835,7 @@ class _DashboardEmptyState extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             const SizedBox(width: 12),
-            Text(text),
+            Expanded(child: Text(text)),
           ],
         ),
       ),
@@ -771,39 +904,88 @@ class _HappeningCard extends StatelessWidget {
       if (entry.teacher?.trim().isNotEmpty == true) 'Teacher: ${entry.teacher}',
       if (entry.notes.trim().isNotEmpty) entry.notes,
     ];
-    return Card(
+    final progress = timetableEventProgress(entry, now: now);
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              entry.title,
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
-            ),
-            if (entry.subject?.trim().isNotEmpty == true)
-              Text(
-                entry.subject!,
-                style: Theme.of(context).textTheme.bodyMedium,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: talaSurface,
+        border: Border.all(color: talaBorder),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: talaSky,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(Icons.schedule, color: talaBlue),
               ),
-            const SizedBox(height: 4),
-            Text(
-              '${_format(entry.startMinutes)} – ${_format(entry.endMinutes)}',
-            ),
-            const SizedBox(height: 4),
-            Text(timetableMinutesRemaining(entry, now: now)),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: timetableEventProgress(entry, now: now),
-            ),
-            if (metadata.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              ...metadata.map(Text.new),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: talaInk,
+                      ),
+                    ),
+                    if (entry.subject?.trim().isNotEmpty == true)
+                      Text(
+                        entry.subject!,
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(color: talaInk.withValues(alpha: 0.68)),
+                      ),
+                  ],
+                ),
+              ),
             ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '${_format(entry.startMinutes)} – ${_format(entry.endMinutes)}',
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: talaInk.withValues(alpha: 0.75)),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            timetableMinutesRemaining(entry, now: now),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: talaBlue, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 8,
+              backgroundColor: talaSky,
+              color: talaBlue,
+            ),
+          ),
+          if (metadata.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            ...metadata.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text(
+                  item,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: talaInk.withValues(alpha: 0.72)),
+                ),
+              ),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -837,44 +1019,70 @@ class _AcademicOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Wrap(
-              spacing: 24,
-              runSpacing: 16,
-              children: [
-                _Metric(label: 'Open tasks', value: openTasks),
-                _Metric(label: 'Due today', value: dueToday),
-                _Metric(label: 'Overdue', value: overdue),
-                _Metric(label: 'Next 7 days', value: nextSevenDays),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Subject workload',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            if (workload.isEmpty)
-              const Text('Not enough data yet')
-            else
-              ...workload.entries.map(
-                (entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text(entry.key)),
-                      Text('${entry.value}'),
-                    ],
-                  ),
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: talaSurface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: talaBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: 24,
+            runSpacing: 16,
+            children: [
+              _Metric(label: 'Open tasks', value: openTasks),
+              _Metric(label: 'Due today', value: dueToday),
+              _Metric(label: 'Overdue', value: overdue),
+              _Metric(label: 'Next 7 days', value: nextSevenDays),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Subject workload',
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(color: talaInk, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          if (workload.isEmpty)
+            const Text('Not enough data yet')
+          else
+            ...workload.entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        entry.key,
+                        style: Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(color: talaInk.withValues(alpha: 0.75)),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: talaSky,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        '${entry.value}',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: talaBlue,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -917,40 +1125,48 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                icon,
-                color: Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: talaSurface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: talaBorder),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: talaSky,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title),
-                  const SizedBox(height: 4),
-                  AnimatedValueText(
-                    value,
-                    style: Theme.of(context).textTheme.headlineSmall!
-                        .copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-                ],
-              ),
+            child: Icon(icon, color: talaBlue),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: talaInk.withValues(alpha: 0.7)),
+                ),
+                const SizedBox(height: 4),
+                AnimatedValueText(
+                  value,
+                  style: Theme.of(context).textTheme.headlineSmall!
+                      .copyWith(color: talaInk, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: talaInk.withValues(alpha: 0.7)),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/branding.dart';
 import '../app/motion.dart';
 import '../models/task.dart';
 import '../view_models/task_view_model.dart';
@@ -97,13 +98,24 @@ class _CalendarPageState extends State<CalendarPage> {
     return Row(
       children: [
         Expanded(
-          child: Text(
-            'Calendar',
-            style: Theme.of(context).textTheme.headlineMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Calendar',
+                style: Theme.of(context).textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.bold, color: talaInk),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Academic plan overview',
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(color: talaInk.withValues(alpha: 0.72)),
+              ),
+            ],
           ),
         ),
-        OutlinedButton(onPressed: _goToToday, child: const Text('Today')),
+        FilledButton.tonal(onPressed: _goToToday, child: const Text('Today')),
       ],
     );
   }
@@ -112,62 +124,83 @@ class _CalendarPageState extends State<CalendarPage> {
     final days = _calendarDays(_displayedMonth);
     final monthLabel = _monthLabel(_displayedMonth);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: talaSurface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: talaBorder),
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color: talaSky,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
               children: [
                 IconButton(
                   onPressed: _previousMonth,
                   tooltip: 'Previous month',
-                  icon: const Icon(Icons.chevron_left),
+                  icon: const Icon(Icons.chevron_left, color: talaBlue),
                 ),
                 Expanded(
                   child: Text(
                     monthLabel,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
+                        ?.copyWith(fontWeight: FontWeight.bold, color: talaInk),
                   ),
                 ),
                 IconButton(
                   onPressed: _nextMonth,
                   tooltip: 'Next month',
-                  icon: const Icon(Icons.chevron_right),
+                  icon: const Icon(Icons.chevron_right, color: talaBlue),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: _weekdayLabels.map((label) {
-                return Expanded(
-                  child: Center(
-                    child: Text(
-                      label,
-                      style: Theme.of(context).textTheme.labelMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: _weekdayLabels.map((label) {
+              return Expanded(
+                child: Center(
+                  child: Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: talaInk.withValues(alpha: 0.68),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 8),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: days.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7,
-                childAspectRatio: 1.1,
-              ),
-              itemBuilder: (context, index) {
-                return _buildDayCell(context, days[index]);
-              },
-            ),
-          ],
-        ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final childAspectRatio = constraints.maxWidth < 250
+                  ? 0.72
+                  : constraints.maxWidth < 320
+                  ? 0.9
+                  : 1.05;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: days.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 7,
+                  childAspectRatio: childAspectRatio,
+                ),
+                itemBuilder: (context, index) {
+                  return _buildDayCell(context, days[index]);
+                },
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -179,10 +212,9 @@ class _CalendarPageState extends State<CalendarPage> {
     final isSelected = _isSameDay(date, _selectedDate);
     final isToday = _isSameDay(date, DateTime.now());
     final taskCount = viewModel.tasksDueOn(date).length;
-    final colorScheme = Theme.of(context).colorScheme;
 
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       onTap: () {
         setState(() {
           _selectedDate = date;
@@ -195,11 +227,12 @@ class _CalendarPageState extends State<CalendarPage> {
           duration: accessibleMotionDuration(context),
           curve: Curves.easeOutCubic,
           decoration: BoxDecoration(
-            color: isSelected ? colorScheme.primaryContainer : null,
-            border: isToday
-                ? Border.all(color: colorScheme.primary, width: 1.5)
-                : null,
-            borderRadius: BorderRadius.circular(12),
+            color: isSelected ? talaSky : null,
+            border: Border.all(
+              color: isToday ? talaBlue : Colors.transparent,
+              width: isToday ? 1.5 : 0,
+            ),
+            borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -209,11 +242,13 @@ class _CalendarPageState extends State<CalendarPage> {
                 curve: Curves.easeOutCubic,
                 style: TextStyle(
                   color: isCurrentMonth
-                      ? colorScheme.onSurface
-                      : colorScheme.onSurface.withValues(alpha: 0.35),
+                      ? isSelected
+                            ? talaBlue
+                            : talaInk
+                      : talaInk.withValues(alpha: 0.35),
                   fontWeight: isSelected || isToday
                       ? FontWeight.bold
-                      : FontWeight.normal,
+                      : FontWeight.w600,
                 ),
                 child: Text('${date.day}'),
               ),
@@ -242,21 +277,33 @@ class _CalendarPageState extends State<CalendarPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          _selectedDayLabel(),
-          style: Theme.of(context).textTheme.titleLarge
-              ?.copyWith(fontWeight: FontWeight.bold),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: talaSky,
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            _selectedDayLabel(),
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w700, color: talaBlue),
+          ),
         ),
         const SizedBox(height: 12),
         if (tasks.isEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: Text(
-                  'No tasks due on this day.',
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: talaSurface,
+              border: Border.all(color: talaBorder),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Center(
+              child: Text(
+                'No tasks due on this day.',
+                style: Theme.of(context).textTheme.bodyLarge
+                    ?.copyWith(color: talaInk.withValues(alpha: 0.72)),
               ),
             ),
           )

@@ -1,7 +1,12 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../app/subjects.dart';
 import '../models/task.dart';
+
+const int taskDescriptionMaxLength = 1000;
 
 class TaskEditorDialog extends StatefulWidget {
   const TaskEditorDialog({
@@ -35,8 +40,10 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
 
   bool get _canSave {
     final titleIsValid = _titleController.text.trim().isNotEmpty;
+    final descriptionIsValid =
+        _descriptionController.text.length <= taskDescriptionMaxLength;
 
-    if (!titleIsValid) {
+    if (!titleIsValid || !descriptionIsValid) {
       return false;
     }
 
@@ -53,6 +60,14 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
     }
 
     return true;
+  }
+
+  String? get _descriptionError {
+    final description = _descriptionController.text;
+    if (description.length > taskDescriptionMaxLength) {
+      return 'Description must be 1000 characters or fewer.';
+    }
+    return null;
   }
 
   @override
@@ -99,7 +114,10 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
     return AlertDialog(
       title: Text(_isEditing ? 'Edit task' : 'Add task'),
       content: SizedBox(
-        width: 500,
+        width: math.max(
+          0.0,
+          math.min(560.0, MediaQuery.sizeOf(context).width - 80),
+        ),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -120,16 +138,26 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
               const SizedBox(height: 16),
               TextField(
                 controller: _descriptionController,
-                maxLines: 3,
+                maxLength: taskDescriptionMaxLength,
+                maxLines: 4,
+                minLines: 3,
                 textInputAction: TextInputAction.newline,
-                decoration: const InputDecoration(
+                onChanged: (_) => setState(() {}),
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(taskDescriptionMaxLength),
+                ],
+                decoration: InputDecoration(
                   labelText: 'Description',
                   hintText: 'Optional details',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  counterText:
+                      '${_descriptionController.text.length} / $taskDescriptionMaxLength',
+                  errorText: _descriptionError,
                 ),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _selectedSubject,
                 decoration: const InputDecoration(
                   labelText: 'Subject',
@@ -138,14 +166,22 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
                 items: [
                   const DropdownMenuItem<String>(
                     value: reminderSubject,
-                    child: Text('Reminder / No subject'),
+                    child: Text(
+                      'Reminder / No subject',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   ...widget.subjects
                       .where((subject) => subject != reminderSubject)
                       .map(
                         (subject) => DropdownMenuItem<String>(
                           value: subject,
-                          child: Text(subject),
+                          child: Text(
+                            subject,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                   const DropdownMenuItem<String>(
@@ -283,12 +319,17 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
       return;
     }
 
+    final description = _descriptionController.text;
+    if (description.length > taskDescriptionMaxLength) {
+      return;
+    }
+
     if (_isEditing) {
       final existingTask = widget.task!;
 
       final updatedTask = existingTask.copyWith(
         title: title,
-        description: _descriptionController.text.trim(),
+        description: description.trim(),
         subject: subject,
         dueDate: _dueDate,
         clearDueDate: _dueDate == null,
@@ -303,7 +344,7 @@ class _TaskEditorDialogState extends State<TaskEditorDialog> {
     final newTask = Task.create(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       title: title,
-      description: _descriptionController.text.trim(),
+      description: description.trim(),
       subject: subject,
       dueDate: _dueDate,
       priority: _priority,

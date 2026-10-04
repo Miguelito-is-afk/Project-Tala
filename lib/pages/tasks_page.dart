@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'task_editor_dialog.dart';
+import '../app/branding.dart';
 import '../app/motion.dart';
 import '../app/subjects.dart';
 import '../models/task.dart';
 import '../view_models/task_view_model.dart';
+import 'task_editor_dialog.dart';
 
 class TasksPage extends StatelessWidget {
   const TasksPage({required this.viewModel, super.key});
@@ -63,6 +64,8 @@ class TasksPage extends StatelessWidget {
               final horizontalPadding = constraints.maxWidth >= 1000
                   ? 48.0
                   : 24.0;
+              final compact =
+                  constraints.maxWidth < 600 || constraints.maxHeight < 500;
 
               return Center(
                 child: ConstrainedBox(
@@ -72,8 +75,17 @@ class TasksPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(context),
-                        const SizedBox(height: 24),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: compact
+                                ? constraints.maxHeight * 0.45
+                                : constraints.maxHeight,
+                          ),
+                          child: SingleChildScrollView(
+                            child: _buildHeader(context),
+                          ),
+                        ),
+                        SizedBox(height: compact ? 12 : 24),
                         Expanded(child: _buildTaskContent(context)),
                       ],
                     ),
@@ -166,6 +178,7 @@ class TasksPage extends StatelessWidget {
     const allSubjectsValue = '__all_subjects__';
 
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: viewModel.selectedSubject ?? allSubjectsValue,
       decoration: const InputDecoration(
         labelText: 'Subject',
@@ -186,7 +199,11 @@ class TasksPage extends StatelessWidget {
             .map(
               (subject) => DropdownMenuItem<String>(
                 value: subject,
-                child: Text(subject),
+                child: Text(
+                  subject,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ),
       ],
@@ -198,6 +215,7 @@ class TasksPage extends StatelessWidget {
 
   Widget _buildPriorityFilter(BuildContext context) {
     return DropdownButtonFormField<TaskPriority?>(
+      isExpanded: true,
       initialValue: viewModel.selectedPriority,
       decoration: const InputDecoration(
         labelText: 'Priority',
@@ -228,6 +246,7 @@ class TasksPage extends StatelessWidget {
 
   Widget _buildSortSelector(BuildContext context) {
     return DropdownButtonFormField<TaskSortOption>(
+      isExpanded: true,
       initialValue: viewModel.selectedSort,
       decoration: const InputDecoration(
         labelText: 'Sort by',
@@ -380,51 +399,54 @@ class TasksPage extends StatelessWidget {
         ? 'reminder'
         : viewModel.selectedSubject;
 
+    final compact = MediaQuery.sizeOf(context).width < 600;
     return Center(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                hasAnyFilter ? Icons.filter_alt_off : Icons.checklist,
-                size: 64,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                (hasSearch && hasAnyFilter) || hasCombinedFilters
-                    ? 'No matching tasks'
-                    : hasSearch
-                    ? 'No tasks match your search.'
-                    : hasSubjectFilter
-                    ? 'No $subjectLabel tasks'
-                    : hasPriorityFilter
-                    ? 'No ${_priorityFilterLabel(viewModel.selectedPriority).toLowerCase()} priority tasks'
-                    : hasStatusFilter
-                    ? 'No ${_filterLabel(viewModel.selectedFilter).toLowerCase()} tasks'
-                    : 'No tasks yet',
-                style: Theme.of(context).textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                (hasSearch && hasAnyFilter) || hasCombinedFilters
-                    ? 'Try changing your search or filters.'
-                    : hasSearch
-                    ? 'Try a different search term.'
-                    : hasSubjectFilter
-                    ? 'There are no tasks for this subject.'
-                    : hasPriorityFilter
-                    ? 'There are no tasks with this priority.'
-                    : hasStatusFilter
-                    ? 'There are no tasks matching this filter.'
-                    : 'Add your first assignment, deadline, or study task.',
-                textAlign: TextAlign.center,
-              ),
-            ],
+      child: SingleChildScrollView(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(compact ? 20 : 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  hasAnyFilter ? Icons.filter_alt_off : Icons.checklist,
+                  size: compact ? 48 : 64,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  (hasSearch && hasAnyFilter) || hasCombinedFilters
+                      ? 'No matching tasks'
+                      : hasSearch
+                      ? 'No tasks match your search.'
+                      : hasSubjectFilter
+                      ? 'No $subjectLabel tasks'
+                      : hasPriorityFilter
+                      ? 'No ${_priorityFilterLabel(viewModel.selectedPriority).toLowerCase()} priority tasks'
+                      : hasStatusFilter
+                      ? 'No ${_filterLabel(viewModel.selectedFilter).toLowerCase()} tasks'
+                      : 'No tasks yet',
+                  style: Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  (hasSearch && hasAnyFilter) || hasCombinedFilters
+                      ? 'Try changing your search or filters.'
+                      : hasSearch
+                      ? 'Try a different search term.'
+                      : hasSubjectFilter
+                      ? 'There are no tasks for this subject.'
+                      : hasPriorityFilter
+                      ? 'There are no tasks with this priority.'
+                      : hasStatusFilter
+                      ? 'There are no tasks matching this filter.'
+                      : 'Add your first assignment, deadline, or study task.',
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -492,111 +514,139 @@ class TaskCard extends StatelessWidget {
         ? colors.primaryContainer.withValues(alpha: 0.28)
         : Colors.transparent;
 
-    return Card(
+    return Container(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: accessibleMotionDuration(context),
-          curve: Curves.easeOutCubic,
-          decoration: BoxDecoration(
-            color: completedDecoration,
-            borderRadius: BorderRadius.circular(18),
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Checkbox(value: task.isCompleted, onChanged: (_) => onToggle()),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AnimatedDefaultTextStyle(
-                      duration: accessibleMotionDuration(context),
-                      curve: Curves.easeOutCubic,
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        fontWeight: FontWeight.w600,
-                        decoration: task.isCompleted
-                            ? TextDecoration.lineThrough
-                            : null,
+      decoration: BoxDecoration(
+        color: completedDecoration,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.transparent),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: accessibleMotionDuration(context),
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              color: task.isCompleted
+                  ? talaSky.withValues(alpha: 0.24)
+                  : talaSurface,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: talaBorder),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Checkbox(
+                  value: task.isCompleted,
+                  onChanged: (_) => onToggle(),
+                  activeColor: talaBlue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AnimatedDefaultTextStyle(
+                        duration: accessibleMotionDuration(context),
+                        curve: Curves.easeOutCubic,
+                        style: Theme.of(context).textTheme.titleMedium!
+                            .copyWith(
+                              color: talaInk,
+                              fontWeight: FontWeight.w700,
+                              decoration: task.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                            ),
+                        child: Text(task.title),
                       ),
-                      child: Text(task.title),
-                    ),
-                    if (task.description.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        task.description,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          decoration: task.isCompleted
-                              ? TextDecoration.lineThrough
-                              : null,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _InfoChip(
-                          icon: task.subject == reminderSubject
-                              ? Icons.notifications_none_outlined
-                              : Icons.menu_book_outlined,
-                          label: task.subject == reminderSubject
-                              ? 'Reminder'
-                              : task.subject,
-                        ),
-                        if (task.dueDate != null)
-                          _InfoChip(
-                            icon: Icons.calendar_today_outlined,
-                            label: _formatDate(task.dueDate!),
-                          ),
-                        _InfoChip(
-                          icon: Icons.flag_outlined,
-                          label: _priorityLabel(task.priority),
-                          color: priorityColor,
+                      if (task.description.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          task.description,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: talaInk.withValues(alpha: 0.7),
+                                decoration: task.isCompleted
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
                         ),
                       ],
-                    ),
-                  ],
-                ),
-              ),
-              if (onEdit != null || onDelete != null)
-                PopupMenuButton<String>(
-                  tooltip: 'Task options',
-                  onSelected: (value) {
-                    switch (value) {
-                      case 'edit':
-                        onEdit?.call();
-                        break;
-                      case 'delete':
-                        onDelete?.call();
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    if (onEdit != null)
-                      const PopupMenuItem(
-                        value: 'edit',
-                        child: ListTile(
-                          leading: Icon(Icons.edit_outlined),
-                          title: Text('Edit'),
-                        ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _InfoChip(
+                            icon: task.subject == reminderSubject
+                                ? Icons.notifications_none_outlined
+                                : Icons.menu_book_outlined,
+                            label: task.subject == reminderSubject
+                                ? 'Reminder'
+                                : task.subject,
+                            background: talaSky,
+                            foreground: talaBlue,
+                          ),
+                          if (task.dueDate != null)
+                            _InfoChip(
+                              icon: Icons.calendar_today_outlined,
+                              label: _formatDate(task.dueDate!),
+                              background: talaPaper,
+                              foreground: talaInk.withValues(alpha: 0.72),
+                            ),
+                          _InfoChip(
+                            icon: Icons.flag_outlined,
+                            label: _priorityLabel(task.priority),
+                            background: priorityColor.withValues(alpha: 0.12),
+                            foreground: priorityColor,
+                          ),
+                        ],
                       ),
-                    if (onDelete != null)
-                      const PopupMenuItem(
-                        value: 'delete',
-                        child: ListTile(
-                          leading: Icon(Icons.delete_outline),
-                          title: Text('Delete'),
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-            ],
+                if (onEdit != null || onDelete != null)
+                  PopupMenuButton<String>(
+                    tooltip: 'Task options',
+                    icon: const Icon(Icons.more_horiz_rounded, color: talaInk),
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'edit':
+                          onEdit?.call();
+                          break;
+                        case 'delete':
+                          onDelete?.call();
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (onEdit != null)
+                        const PopupMenuItem(
+                          value: 'edit',
+                          child: ListTile(
+                            leading: Icon(Icons.edit_outlined),
+                            title: Text('Edit'),
+                          ),
+                        ),
+                      if (onDelete != null)
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: ListTile(
+                            leading: Icon(Icons.delete_outline),
+                            title: Text('Delete'),
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -666,20 +716,28 @@ class TaskCard extends StatelessWidget {
 }
 
 class _InfoChip extends StatelessWidget {
-  const _InfoChip({required this.icon, required this.label, this.color});
+  const _InfoChip({
+    required this.icon,
+    required this.label,
+    this.background,
+    this.foreground,
+  });
 
   final IconData icon;
   final String label;
-  final Color? color;
+  final Color? background;
+  final Color? foreground;
 
   @override
   Widget build(BuildContext context) {
-    final chipColor = color ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final chipColor =
+        foreground ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final chipBackground = background ?? chipColor.withValues(alpha: 0.10);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: chipColor.withValues(alpha: 0.10),
+        color: chipBackground,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

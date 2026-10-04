@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../app/branding.dart';
 import '../app/motion.dart';
 import '../app/subjects.dart';
 import '../models/task.dart';
@@ -48,35 +49,48 @@ class _SubjectsPageState extends State<SubjectsPage> {
                         Text(
                           'Subjects',
                           style: Theme.of(context).textTheme.headlineMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: talaInk,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'See how your tasks are distributed across subjects.',
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: talaInk.withValues(alpha: 0.72),
+                              ),
                         ),
                         const SizedBox(height: 24),
-                        FilledButton.icon(
-                          onPressed: _addSubject,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add subject'),
-                        ),
-                        if (viewModel.archivedSubjects.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          TextButton.icon(
-                            onPressed: _showArchivedSubjects,
-                            icon: const Icon(Icons.archive_outlined),
-                            label: Text(
-                              'Archived subjects '
-                              '(${viewModel.archivedSubjects.length})',
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            FilledButton.icon(
+                              onPressed: _addSubject,
+                              icon: const Icon(Icons.add),
+                              label: const Text('Add subject'),
                             ),
-                          ),
-                        ],
+                            if (viewModel.archivedSubjects.isNotEmpty)
+                              OutlinedButton.icon(
+                                onPressed: _showArchivedSubjects,
+                                icon: const Icon(Icons.archive_outlined),
+                                label: Text(
+                                  'Archived subjects '
+                                  '(${viewModel.archivedSubjects.length})',
+                                ),
+                              ),
+                          ],
+                        ),
                         const SizedBox(height: 20),
                         Text(
                           'Active subjects',
                           style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: talaInk,
+                              ),
                         ),
                         const SizedBox(height: 12),
                         LayoutBuilder(
@@ -427,86 +441,112 @@ class _SubjectCard extends StatelessWidget {
     final incompleteCount = tasks.length - completedCount;
     final displayName = subject == reminderSubject ? 'Reminder' : subject;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Theme.of(context)
-                        .colorScheme
-                        .primaryContainer,
-                    child: Icon(
-                      subject == reminderSubject
-                          ? Icons.notifications_none_outlined
-                          : Icons.menu_book_outlined,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+    return Container(
+      decoration: BoxDecoration(
+        color: talaSurface,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: talaBorder),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: talaSky,
+                      child: Icon(
+                        subject == reminderSubject
+                            ? Icons.notifications_none_outlined
+                            : Icons.menu_book_outlined,
+                        color: talaBlue,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      displayName,
-                      style: Theme.of(context).textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        displayName,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: talaInk,
+                        ),
+                      ),
                     ),
-                  ),
-                  if (onArchive != null || onEdit != null)
-                    PopupMenuButton<String>(
-                      tooltip: 'Subject options',
-                      onSelected: (value) {
-                        if (value == 'edit') {
-                          onEdit!();
-                        } else {
-                          onArchive!();
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        if (onEdit != null)
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Text('Edit'),
-                          ),
-                        if (onArchive != null)
-                          const PopupMenuItem(
-                            value: 'archive',
-                            child: Text('Archive'),
-                          ),
-                      ],
-                    )
-                  else
-                    const Icon(Icons.chevron_right),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  _Stat(label: 'Total', value: '${tasks.length}'),
-                  _Stat(label: 'Open', value: '$incompleteCount'),
-                  _Stat(label: 'Done', value: '$completedCount'),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                nextDueTask == null
-                    ? 'No upcoming due tasks'
-                    : 'Next due: ${nextDueTask!.title}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              if (nextDueTask != null)
-                Text(
-                  _formatDueDate(nextDueTask!.dueDate!),
-                  style: Theme.of(context).textTheme.bodySmall,
+                    if (onArchive != null || onEdit != null)
+                      PopupMenuButton<String>(
+                        tooltip: 'Subject options',
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            onEdit!();
+                          } else {
+                            onArchive!();
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          if (onEdit != null)
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Text('Edit'),
+                            ),
+                          if (onArchive != null)
+                            const PopupMenuItem(
+                              value: 'archive',
+                              child: Text('Archive'),
+                            ),
+                        ],
+                      )
+                    else
+                      const Icon(Icons.chevron_right, color: talaBlue),
+                  ],
                 ),
-            ],
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    _Stat(label: 'Total', value: '${tasks.length}'),
+                    _Stat(label: 'Open', value: '$incompleteCount'),
+                    _Stat(label: 'Done', value: '$completedCount'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: talaPaper,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: talaBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nextDueTask == null
+                            ? 'No upcoming due tasks'
+                            : 'Next due: ${nextDueTask!.title}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: talaInk,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (nextDueTask != null)
+                        Text(
+                          _formatDueDate(nextDueTask!.dueDate!),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: talaInk.withValues(alpha: 0.7)),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
